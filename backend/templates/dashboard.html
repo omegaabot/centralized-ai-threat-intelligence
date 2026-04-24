@@ -1,0 +1,191 @@
+{% extends "base.html" %}
+
+{% block title %}Dashboard | Threat Intelligence{% endblock %}
+
+{% block content %}
+<header class="page-header">
+    <div>
+        <p class="eyebrow">Operations Board</p>
+        <h2>Threat Intelligence Dashboard</h2>
+        <p class="muted">A compact SOC-style monitoring view with KPIs, chart panels, active vulnerabilities, and live IOC triage.</p>
+    </div>
+    <div class="status-pill">SOC Status: Active Monitoring</div>
+</header>
+
+<section class="summary-strip">
+    {% for tile in summary_tiles %}
+    <article class="summary-card">
+        <span>{{ tile.label }}</span>
+        <strong>{{ tile.value }}</strong>
+        <p>{{ tile.delta }} in last cycle</p>
+    </article>
+    {% endfor %}
+</section>
+
+<section class="dashboard-mosaic">
+    <article class="glass-panel mosaic-card">
+        <div class="panel-header">
+            <div>
+                <p class="eyebrow">Threat Families</p>
+                <h3>Top Threat Types</h3>
+            </div>
+        </div>
+        <canvas class="dashboard-canvas" id="typeChart" data-chart='{{ type_chart|safe }}'></canvas>
+    </article>
+
+    <article class="glass-panel mosaic-card">
+        <div class="panel-header">
+            <div>
+                <p class="eyebrow">Risk Analytics</p>
+                <h3>Risk Distribution</h3>
+            </div>
+        </div>
+        <canvas class="dashboard-canvas" id="riskChart" data-chart='{{ risk_chart|safe }}'></canvas>
+    </article>
+
+    <article class="glass-panel mosaic-card">
+        <div class="panel-header">
+            <div>
+                <p class="eyebrow">Feed Overview</p>
+                <h3>Source Distribution</h3>
+            </div>
+        </div>
+        <canvas class="dashboard-canvas" id="sourceChart" data-chart='{{ source_chart|safe }}'></canvas>
+    </article>
+
+    <article class="glass-panel mosaic-card wide-card">
+        <div class="panel-header">
+            <div>
+                <p class="eyebrow">Volume Monitor</p>
+                <h3>Threat Trend</h3>
+            </div>
+        </div>
+        <canvas class="dashboard-canvas" id="timelineChart" data-chart='{{ timeline_chart|safe }}'></canvas>
+    </article>
+
+    <article class="glass-panel mosaic-card">
+        <div class="panel-header">
+            <div>
+                <p class="eyebrow">Case Flow</p>
+                <h3>Status Overview</h3>
+            </div>
+        </div>
+        <canvas class="dashboard-canvas" id="statusChart" data-chart='{{ status_chart|safe }}'></canvas>
+    </article>
+
+    <article class="glass-panel mosaic-card">
+        <div class="panel-header">
+            <div>
+                <p class="eyebrow">ATT&CK Alignment</p>
+                <h3>Tactics Coverage</h3>
+            </div>
+        </div>
+        <canvas class="dashboard-canvas" id="tacticChart" data-chart='{{ tactic_chart|safe }}'></canvas>
+    </article>
+
+    <article class="glass-panel mosaic-card">
+        <div class="panel-header">
+            <div>
+                <p class="eyebrow">Priority Queue</p>
+                <h3>Active Vulnerabilities</h3>
+            </div>
+        </div>
+        <div class="stacked-list">
+            {% for item in active_vulnerabilities %}
+            <div class="stacked-item">
+                <div>
+                    <strong>{{ item.cve }}</strong>
+                    <p>{{ item.ioc }}</p>
+                </div>
+                <span class="metric-tag">{{ item.score }}</span>
+            </div>
+            {% endfor %}
+        </div>
+    </article>
+
+    <article class="glass-panel mosaic-card">
+        <div class="panel-header">
+            <div>
+                <p class="eyebrow">Recent Activity</p>
+                <h3>Latest Reports</h3>
+            </div>
+        </div>
+        <div class="stacked-list">
+            {% for item in latest_reports %}
+            <a class="stacked-item stacked-link" href="/threats/{{ item.id }}">
+                <div>
+                    <strong>{{ item.threat }}</strong>
+                    <p>{{ item.ioc }} | {{ item.created_display }}</p>
+                </div>
+                <span class="risk-badge risk-{{ item.risk|lower }}">{{ item.risk }}</span>
+            </a>
+            {% endfor %}
+        </div>
+    </article>
+</section>
+
+<section class="glass-panel dashboard-table-panel">
+    <div class="panel-header">
+        <div>
+            <p class="eyebrow">IOC Explorer</p>
+            <h3>Threat Search and Triage</h3>
+        </div>
+        <a class="ghost-link" href="/add">Add new IOC</a>
+    </div>
+
+    <form method="get" action="/dashboard" class="filter-grid">
+        <input type="text" name="search" value="{{ filters.search }}" placeholder="Search IOC, threat, source">
+        <select name="type">
+            {% for option in ioc_types %}
+            <option value="{{ option }}" {% if filters.type == option %}selected{% endif %}>{{ option }}</option>
+            {% endfor %}
+        </select>
+        <select name="risk">
+            {% for option in risk_options %}
+            <option value="{{ option }}" {% if filters.risk == option %}selected{% endif %}>{{ option }}</option>
+            {% endfor %}
+        </select>
+        <select name="status">
+            {% for option in status_options %}
+            <option value="{{ option }}" {% if filters.status == option %}selected{% endif %}>{{ option }}</option>
+            {% endfor %}
+        </select>
+        <button class="primary-btn" type="submit">Apply Filters</button>
+    </form>
+
+    <div class="table-wrap">
+        <table class="intel-table">
+            <thead>
+                <tr>
+                    <th>IOC</th>
+                    <th>Type</th>
+                    <th>Threat</th>
+                    <th>Risk</th>
+                    <th>Score</th>
+                    <th>Status</th>
+                    <th>Source</th>
+                    <th>Seen</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for threat in threats %}
+                <tr class="clickable-row" data-href="/threats/{{ threat.id }}">
+                    <td class="ioc-cell"><a class="table-link" href="/threats/{{ threat.id }}">{{ threat.ioc }}</a></td>
+                    <td>{{ threat.type }}</td>
+                    <td>{{ threat.threat }}</td>
+                    <td><span class="risk-badge risk-{{ threat.risk|lower }}">{{ threat.risk }}</span></td>
+                    <td>{{ threat.score }}</td>
+                    <td>{{ threat.status }}</td>
+                    <td>{{ threat.source }}</td>
+                    <td>{{ threat.created_display }}</td>
+                </tr>
+                {% else %}
+                <tr>
+                    <td colspan="8" class="empty-state">No threats matched the active filters.</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</section>
+{% endblock %}

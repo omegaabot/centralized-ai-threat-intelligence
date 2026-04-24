@@ -1,0 +1,105 @@
+{% extends "base.html" %}
+
+{% block title %}Reports | Threat Intelligence{% endblock %}
+
+{% block content %}
+<header class="page-header">
+    <div>
+        <p class="eyebrow">Threat Reporting</p>
+        <h2>Threat Reports</h2>
+        <p class="muted">Detailed summaries of malware, phishing, and every other threat family currently stored in the platform. Any new IOC added to the database will automatically appear in the appropriate report section.</p>
+    </div>
+    <div class="status-pill">Sections: {{ report_total }} | IOCs: {{ ioc_total }}</div>
+</header>
+
+<section class="dual-grid">
+    <article class="glass-panel">
+        <div class="panel-header">
+            <div>
+                <p class="eyebrow">Live Intake</p>
+                <h3>New Additions</h3>
+            </div>
+        </div>
+        <div class="stacked-list">
+            {% for item in new_additions %}
+            <a class="stacked-item stacked-link" href="/threats/{{ item.id }}">
+                <div>
+                    <strong>{{ item.ioc }}</strong>
+                    <p>{{ item.threat }} | {{ item.source }} | {{ item.created_display }}</p>
+                </div>
+                <span class="risk-badge risk-{{ item.risk|lower }}">{{ item.risk }}</span>
+            </a>
+            {% endfor %}
+        </div>
+    </article>
+
+    <article class="glass-panel">
+        <div class="panel-header">
+            <div>
+                <p class="eyebrow">How It Works</p>
+                <h3>Auto-updating Reports</h3>
+            </div>
+        </div>
+        <div class="report-text">
+            <p>These reports are generated from the same IOC dataset used by the dashboard, feed, and alerts modules.</p>
+            <p>If you add a new malware hash, phishing URL, suspicious domain, or IP address, the corresponding report section will update automatically.</p>
+            <p>This gives your project both analytics dashboards and written intelligence summaries from one centralized threat intelligence backend.</p>
+        </div>
+    </article>
+</section>
+
+<section class="report-grid">
+    {% for section in report_sections %}
+    <article class="glass-panel report-card">
+        <div class="panel-header">
+            <div>
+                <p class="eyebrow">Threat Family</p>
+                <h3>{{ section.name }}</h3>
+            </div>
+            <span class="risk-badge risk-{{ section.dominant_risk|lower }}">{{ section.count }} IOC{{ "s" if section.count != 1 else "" }}</span>
+        </div>
+
+        <div class="report-metrics">
+            <div class="detail-card">
+                <span>Average Score</span>
+                <strong>{{ section.avg_score }}</strong>
+            </div>
+            <div class="detail-card">
+                <span>Primary Type</span>
+                <strong>{{ section.top_type }}</strong>
+            </div>
+            <div class="detail-card">
+                <span>Main Source</span>
+                <strong>{{ section.top_source }}</strong>
+            </div>
+            <div class="detail-card">
+                <span>Latest Seen</span>
+                <strong>{{ section.latest_seen }}</strong>
+            </div>
+        </div>
+
+        <div class="report-text">
+            <p>{{ section.summary }}</p>
+        </div>
+
+        <div class="panel-header compact-header">
+            <div>
+                <p class="eyebrow">Related IOCs</p>
+                <h3>Examples</h3>
+            </div>
+        </div>
+        <div class="stacked-list">
+            {% for item in section.iocs %}
+            <a class="stacked-item stacked-link" href="/threats/{{ item.id }}">
+                <div>
+                    <strong>{{ item.ioc }}</strong>
+                    <p>{{ item.type }} | {{ item.source }} | {{ item.created_display }}</p>
+                </div>
+                <span class="risk-badge risk-{{ item.risk|lower }}">{{ item.score }}</span>
+            </a>
+            {% endfor %}
+        </div>
+    </article>
+    {% endfor %}
+</section>
+{% endblock %}

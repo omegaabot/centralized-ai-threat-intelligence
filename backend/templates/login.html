@@ -1,0 +1,44 @@
+{% extends "base.html" %}
+
+{% block title %}Login | Threat Intelligence{% endblock %}
+
+{% block content %}
+<section class="hero-panel login-panel">
+    <div class="hero-copy">
+        <p class="eyebrow">Centralized AI-Based Threat Intelligence Dashboard</p>
+        <h2>Security Operations Center Console</h2>
+        <p class="muted">Monitor suspicious indicators, simulate feed ingestion, prioritize alerts, and present your final-year project like a real SIEM command platform.</p>
+        <div class="login-stats">
+            <div class="stat-chip">
+                <span>IOC Types</span>
+                <strong>Domain / IP / URL / Hash</strong>
+            </div>
+            <div class="stat-chip">
+                <span>Access</span>
+                <strong>Demo credentials enabled</strong>
+            </div>
+        </div>
+    </div>
+
+    <div class="login-form-column">
+    <div class="glass-panel auth-card">
+        <h3>Analyst Login</h3>
+        <p class="muted">Use <code>admin</code> / <code>admin123</code> to enter the dashboard.</p>
+        {% if error %}
+        <div class="banner banner-danger">{{ error }}</div>
+        {% endif %}
+        <form method="post" action="/login" class="stack-form">
+            <label>
+                Username
+                <input type="text" name="username" placeholder="Enter username" required>
+            </label>
+            <label>
+                Password
+                <input type="password" name="password" placeholder="Enter password" required>
+            </label>
+            <button class="primary-btn" type="submit">Enter SOC Workspace</button>
+        </form>
+    </div>
+    </div>
+</section>
+{% endblock %}

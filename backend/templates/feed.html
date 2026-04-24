@@ -1,0 +1,94 @@
+{% extends "base.html" %}
+
+{% block title %}Threat Feed | Threat Intelligence{% endblock %}
+
+{% block content %}
+<header class="page-header">
+    <div>
+        <p class="eyebrow">Feed Ingestion</p>
+        <h2>Threat Intelligence Feed</h2>
+        <p class="muted">Simulate external CTI ingestion by pushing manual entries or auto-generating batches of suspicious indicators.</p>
+    </div>
+</header>
+
+<section class="dual-grid">
+    <article class="glass-panel">
+        <h3>Manual Feed Entry</h3>
+        <form method="post" action="/feed" class="stack-form">
+            <label>
+                IOC Value
+                <input type="text" name="ioc" placeholder="Example: http://secure-update-alert.net" required>
+            </label>
+            <label>
+                Source
+                <input type="text" name="source" value="Threat Feed">
+            </label>
+            <button class="primary-btn" type="submit">Push to Feed</button>
+        </form>
+
+        <form method="post" action="/feed/auto" class="inline-form">
+            <label>
+                Auto Feed Count
+                <input type="number" min="1" max="20" name="count" value="8">
+            </label>
+            <button class="secondary-btn" type="submit">Generate Auto Feed</button>
+        </form>
+    </article>
+
+    <article class="glass-panel info-panel">
+        <h3>Feed Telemetry</h3>
+        <div class="metric-mini-grid">
+            <div class="mini-card">
+                <span>Recent Feed IOCs</span>
+                <strong>{{ feed_total }}</strong>
+            </div>
+            <div class="mini-card">
+                <span>Active Sources</span>
+                <strong>{{ active_sources }}</strong>
+            </div>
+        </div>
+        <p class="muted">Use this module during your project demo to show ingestion pipelines, CTI correlation, and automated feed generation.</p>
+    </article>
+</section>
+
+<section class="glass-panel">
+    <div class="panel-header">
+        <div>
+            <p class="eyebrow">Latest Intelligence</p>
+            <h3>Recent Feed Entries</h3>
+        </div>
+    </div>
+    <div class="table-wrap">
+        <table class="intel-table">
+            <thead>
+                <tr>
+                    <th>IOC</th>
+                    <th>Type</th>
+                    <th>Threat</th>
+                    <th>Risk</th>
+                    <th>Score</th>
+                    <th>Status</th>
+                    <th>Source</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for threat in feed_recent %}
+                <tr>
+                    <td class="ioc-cell">{{ threat.ioc }}</td>
+                    <td>{{ threat.type }}</td>
+                    <td>{{ threat.threat }}</td>
+                    <td><span class="risk-badge risk-{{ threat.risk|lower }}">{{ threat.risk }}</span></td>
+                    <td>{{ threat.score }}</td>
+                    <td>{{ threat.status }}</td>
+                    <td>{{ threat.source }}</td>
+                </tr>
+                {% else %}
+                <tr>
+                    <td colspan="7" class="empty-state">No feed events yet.</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</section>
+{% endblock %}

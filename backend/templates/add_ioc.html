@@ -1,0 +1,60 @@
+{% extends "base.html" %}
+
+{% block title %}Add IOC | Threat Intelligence{% endblock %}
+
+{% block content %}
+<header class="page-header">
+    <div>
+        <p class="eyebrow">Manual Enrichment</p>
+        <h2>Add Indicator of Compromise</h2>
+        <p class="muted">Submit suspicious infrastructure, URLs, file hashes, or domains and let the platform classify risk automatically.</p>
+    </div>
+</header>
+
+<section class="dual-grid">
+    <article class="glass-panel">
+        <h3>New IOC Submission</h3>
+        <form method="post" action="/add" class="stack-form">
+            <label>
+                IOC Value
+                <input type="text" name="ioc" placeholder="Example: suspicious-login-check.com" required>
+            </label>
+            <label>
+                IOC Type
+                <select name="ioc_type">
+                    <option>Auto Detect</option>
+                    {% for option in ioc_types %}
+                    <option>{{ option }}</option>
+                    {% endfor %}
+                </select>
+            </label>
+            <label>
+                Case Status
+                <select name="status">
+                    {% for option in status_options %}
+                    <option {% if option == "Open" %}selected{% endif %}>{{ option }}</option>
+                    {% endfor %}
+                </select>
+            </label>
+            <label>
+                Source Tag
+                <input type="text" name="source" value="Manual Upload">
+            </label>
+            <button class="primary-btn" type="submit">Analyze and Store IOC</button>
+        </form>
+    </article>
+
+    <article class="glass-panel info-panel">
+        <h3>Supported IOC Types</h3>
+        <div class="support-list">
+            <div><strong>Domain</strong><span>Typosquatting, phishing, malicious DNS infrastructure</span></div>
+            <div><strong>IP Address</strong><span>Botnets, scanners, malware callback infrastructure</span></div>
+            <div><strong>URL</strong><span>Credential harvesting, payload delivery, redirect chains</span></div>
+            <div><strong>File Hash</strong><span>Malware samples, loaders, ransomware indicators</span></div>
+        </div>
+        <div class="banner">
+            The scoring engine combines IOC pattern matching with deterministic randomization so your demo feels realistic and repeatable during evaluation.
+        </div>
+    </article>
+</section>
+{% endblock %}

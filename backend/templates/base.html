@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Threat Intelligence Dashboard{% endblock %}</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', path='css/styles.css') }}">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body class="{{ page }}">
+    <div class="app-shell">
+        {% if page != "login" %}
+        <aside class="sidebar">
+            <div class="brand">
+                <div class="brand-mark">AI</div>
+                <div>
+                    <p class="eyebrow">SOC Command</p>
+                    <h1>Threat Intel</h1>
+                </div>
+            </div>
+
+            <nav class="nav-links">
+                <a href="/dashboard" class="{% if page == 'dashboard' %}active{% endif %}">Dashboard</a>
+                <a href="/feed" class="{% if page == 'feed' %}active{% endif %}">Threat Feed</a>
+                <a href="/reports" class="{% if page == 'reports' %}active{% endif %}">Reports</a>
+                <a href="/alerts" class="{% if page == 'alerts' %}active{% endif %}">Alerts</a>
+                <a href="/add" class="{% if page == 'add' %}active{% endif %}">Add IOC</a>
+            </nav>
+
+            <div class="sidebar-panel">
+                <p class="panel-label">Operator Access</p>
+                <strong>admin</strong>
+                <span>Role: Tier-1 Analyst</span>
+                <span>Status: Monitoring</span>
+            </div>
+        </aside>
+        {% endif %}
+
+        <main class="main-content {% if page == 'login' %}login-layout{% endif %}">
+            {% if page != "login" %}
+            <nav class="mobile-nav">
+                <a href="/dashboard" class="{% if page == 'dashboard' %}active{% endif %}">Dashboard</a>
+                <a href="/feed" class="{% if page == 'feed' %}active{% endif %}">Feed</a>
+                <a href="/reports" class="{% if page == 'reports' %}active{% endif %}">Reports</a>
+                <a href="/alerts" class="{% if page == 'alerts' %}active{% endif %}">Alerts</a>
+                <a href="/add" class="{% if page == 'add' %}active{% endif %}">Add IOC</a>
+            </nav>
+            {% endif %}
+            {% block content %}{% endblock %}
+        </main>
+    </div>
+
+    <script src="{{ url_for('static', path='js/dashboard.js') }}"></script>
+    {% block scripts %}{% endblock %}
+</body>
+</html>

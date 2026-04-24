@@ -1,0 +1,88 @@
+{% extends "base.html" %}
+
+{% block title %}Alerts | Threat Intelligence{% endblock %}
+
+{% block content %}
+<header class="page-header">
+    <div>
+        <p class="eyebrow">Alert Triage</p>
+        <h2>Critical Threat Alerts</h2>
+        <p class="muted">Prioritize the highest-scoring IOCs, update analyst workflow status, and demonstrate incident response handling.</p>
+    </div>
+</header>
+
+<section class="metric-grid compact-grid">
+    <article class="metric-card highlight-danger">
+        <span>Critical Alerts</span>
+        <strong>{{ critical_count }}</strong>
+        <p>Alerts with score 85 and above</p>
+    </article>
+    <article class="metric-card">
+        <span>Open Alerts</span>
+        <strong>{{ open_count }}</strong>
+        <p>Cases still awaiting action</p>
+    </article>
+</section>
+
+<section class="glass-panel">
+    <div class="panel-header">
+        <div>
+            <p class="eyebrow">Filtered Queue</p>
+            <h3>High Risk Cases</h3>
+        </div>
+        <form method="get" action="/alerts" class="inline-form inline-end">
+            <select name="status">
+                {% for option in status_options %}
+                <option value="{{ option }}" {% if status_filter == option %}selected{% endif %}>{{ option }}</option>
+                {% endfor %}
+            </select>
+            <button class="secondary-btn" type="submit">Filter</button>
+        </form>
+    </div>
+
+    <div class="table-wrap">
+        <table class="intel-table">
+            <thead>
+                <tr>
+                    <th>IOC</th>
+                    <th>Threat</th>
+                    <th>Risk</th>
+                    <th>Score</th>
+                    <th>Confidence</th>
+                    <th>Source</th>
+                    <th>Status</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for alert in alerts %}
+                <tr class="clickable-row" data-href="/threats/{{ alert.id }}">
+                    <td class="ioc-cell"><a class="table-link" href="/threats/{{ alert.id }}">{{ alert.ioc }}</a></td>
+                    <td>{{ alert.threat }}</td>
+                    <td><span class="risk-badge risk-high">{{ alert.risk }}</span></td>
+                    <td>{{ alert.score }}</td>
+                    <td>{{ alert.confidence }}</td>
+                    <td>{{ alert.source }}</td>
+                    <td>{{ alert.status }}</td>
+                    <td>
+                        <form method="post" action="/threats/{{ alert.id }}/status" class="inline-form">
+                            <input type="hidden" name="redirect_to" value="/alerts">
+                            <select name="status">
+                                {% for option in status_options[1:] %}
+                                <option value="{{ option }}" {% if alert.status == option %}selected{% endif %}>{{ option }}</option>
+                                {% endfor %}
+                            </select>
+                            <button class="secondary-btn" type="submit">Update</button>
+                        </form>
+                    </td>
+                </tr>
+                {% else %}
+                <tr>
+                    <td colspan="8" class="empty-state">No critical alerts available.</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</section>
+{% endblock %}

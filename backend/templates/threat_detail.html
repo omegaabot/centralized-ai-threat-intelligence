@@ -1,0 +1,134 @@
+{% extends "base.html" %}
+
+{% block title %}Threat Detail | Threat Intelligence{% endblock %}
+
+{% block content %}
+<header class="page-header">
+    <div>
+        <p class="eyebrow">Incident Drilldown</p>
+        <h2>{{ threat.headline }}</h2>
+        <p class="muted">{{ threat.summary }}</p>
+    </div>
+    <a class="ghost-link" href="/dashboard">Back to Dashboard</a>
+</header>
+
+<section class="metric-grid compact-grid">
+    <article class="metric-card highlight-danger">
+        <span>Risk Level</span>
+        <strong>{{ threat.risk }}</strong>
+        <p>Current AI-assisted risk classification</p>
+    </article>
+    <article class="metric-card">
+        <span>Priority</span>
+        <strong>{{ threat.priority_rank }}</strong>
+        <p>Analyst response priority</p>
+    </article>
+</section>
+
+<section class="detail-grid">
+    <article class="glass-panel panel-span-2">
+        <div class="panel-header">
+            <div>
+                <p class="eyebrow">Event Profile</p>
+                <h3>{{ threat.ioc }}</h3>
+            </div>
+            <span class="risk-badge risk-{{ threat.risk|lower }}">{{ threat.score }}</span>
+        </div>
+
+        <div class="detail-overview-grid">
+            <div class="detail-card">
+                <span>IOC Type</span>
+                <strong>{{ threat.type }}</strong>
+            </div>
+            <div class="detail-card">
+                <span>Threat Family</span>
+                <strong>{{ threat.threat }}</strong>
+            </div>
+            <div class="detail-card">
+                <span>Source</span>
+                <strong>{{ threat.source }}</strong>
+            </div>
+            <div class="detail-card">
+                <span>Observed</span>
+                <strong>{{ threat.created_display }}</strong>
+            </div>
+        </div>
+
+        <div class="detail-story">
+            <h4>Investigation Narrative</h4>
+            <p>{{ threat.intel.overview }}</p>
+            <p>{{ threat.intel.attack_story }}</p>
+        </div>
+
+        <div class="telemetry-grid">
+            {% for item in threat.intel.telemetry %}
+            <div class="telemetry-item">
+                <span>{{ item.label }}</span>
+                <strong>{{ item.value }}</strong>
+            </div>
+            {% endfor %}
+        </div>
+    </article>
+
+    <article class="glass-panel">
+        <div class="panel-header">
+            <div>
+                <p class="eyebrow">Workflow</p>
+                <h3>Case Status</h3>
+            </div>
+        </div>
+
+        <form method="post" action="/threats/{{ threat.id }}/status" class="stack-form">
+            <input type="hidden" name="redirect_to" value="/threats/{{ threat.id }}">
+            <label>
+                Update status
+                <select name="status">
+                    {% for option in status_options %}
+                    <option value="{{ option }}" {% if threat.status == option %}selected{% endif %}>{{ option }}</option>
+                    {% endfor %}
+                </select>
+            </label>
+            <button class="primary-btn" type="submit">Save Status</button>
+        </form>
+
+        <div class="kill-chain">
+            {% for phase in threat.intel.kill_chain %}
+            <div class="kill-pill {% if phase.active %}active{% endif %}">{{ phase.label }}</div>
+            {% endfor %}
+        </div>
+    </article>
+
+    <article class="glass-panel panel-span-2">
+        <div class="panel-header">
+            <div>
+                <p class="eyebrow">Response Plan</p>
+                <h3>Recommended Actions</h3>
+            </div>
+        </div>
+        <div class="action-list">
+            {% for item in threat.intel.recommended_actions %}
+            <div class="action-item">{{ item }}</div>
+            {% endfor %}
+        </div>
+    </article>
+
+    <article class="glass-panel">
+        <div class="panel-header">
+            <div>
+                <p class="eyebrow">Linked Events</p>
+                <h3>Related Threats</h3>
+            </div>
+        </div>
+        <div class="related-list">
+            {% for item in related_threats %}
+            <a class="related-link" href="/threats/{{ item.id }}">
+                <strong>{{ item.ioc }}</strong>
+                <span>{{ item.threat }} | {{ item.score }}</span>
+            </a>
+            {% else %}
+            <p class="empty-state">No related threats found.</p>
+            {% endfor %}
+        </div>
+    </article>
+</section>
+{% endblock %}
