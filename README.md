@@ -440,10 +440,6 @@ The backend also includes a health-check endpoint:
 - Kubernetes deployment
 - Multi-container orchestration
 
-## Author
-
-**Kritika Priya**  
-B.Tech CSE (Cybersecurity)
 
 ## Project Status
 
