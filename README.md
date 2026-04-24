@@ -1,10 +1,10 @@
 # Centralized AI-Based Threat Intelligence Dashboard
 
-Centralized AI-Based Threat Intelligence Dashboard is a FastAPI-based cybersecurity project that collects, analyzes, stores, and visualizes Indicators of Compromise (IOCs) such as domains, IP addresses, URLs, and file hashes. The system is designed as a simplified SOC / SIEM-style platform for monitoring suspicious activity through dashboards, alerts, reports, and threat drilldown pages.
+Centralized AI-Based Threat Intelligence Dashboard is a FastAPI-based cybersecurity project that collects, analyzes, stores, and visualizes Indicators of Compromise (IOCs) such as domains, IP addresses, URLs, and file hashes.
 
 ## Overview
 
-The main goal of this project is to create a centralized threat intelligence platform for academic demonstration and practical cybersecurity analysis. Instead of only storing IOC records, the system:
+The main goal of this project is to create a centralized threat intelligence platform for academic demonstration and practical cybersecurity analysis. Instead of only storing IOC records, the system intelligently:
 
 - classifies IOC types automatically
 - assigns threat families
@@ -43,6 +43,7 @@ The main goal of this project is to create a centralized threat intelligence pla
 - Frontend: HTML, CSS, JavaScript
 - Visualization: Chart.js
 - Server: Uvicorn
+- Containerization: Docker & Docker Compose
 
 ## Project Structure
 
@@ -73,6 +74,8 @@ centralized-ai-threat-intelligence/
 │   └── project.db
 ├── docs/
 ├── screenshots/
+├── Dockerfile
+├── docker-compose.yml
 ├── requirements.txt
 └── README.md
 ```
@@ -209,20 +212,22 @@ Main fields:
 
 ## Setup Instructions
 
-### 1. Clone the project
+### Option 1: Local Setup
+
+#### 1. Clone the project
 
 ```bash
 git clone https://github.com/your-repository/centralized-ai-threat-intelligence.git
 cd centralized-ai-threat-intelligence
 ```
 
-### 2. Create a virtual environment
+#### 2. Create a virtual environment
 
 ```bash
 python -m venv venv
 ```
 
-### 3. Activate the environment
+#### 3. Activate the environment
 
 Windows:
 
@@ -236,19 +241,19 @@ macOS / Linux:
 source venv/bin/activate
 ```
 
-### 4. Install dependencies
+#### 4. Install dependencies
 
 ```bash
 pip install -r requirements.txt
 ```
 
-### 5. Run the application
+#### 5. Run the application
 
 ```bash
 uvicorn backend.main:app --reload
 ```
 
-### 6. Open in browser
+#### 6. Open in browser
 
 ```text
 http://127.0.0.1:8000
@@ -258,6 +263,155 @@ Demo credentials:
 
 - Username: `admin`
 - Password: `admin123`
+
+### Option 2: Docker Setup
+
+#### Prerequisites
+
+- [Docker](https://docs.docker.com/get-docker/) installed on your system
+- [Docker Compose](https://docs.docker.com/compose/install/) installed on your system
+
+#### Steps
+
+1. **Clone the repository**
+
+```bash
+git clone https://github.com/your-repository/centralized-ai-threat-intelligence.git
+cd centralized-ai-threat-intelligence
+```
+
+2. **Build and start the containers**
+
+```bash
+docker-compose up -d
+```
+
+3. **Wait for the application to start**
+
+The application will be available at:
+
+```text
+http://localhost:8000
+```
+
+4. **View logs**
+
+```bash
+docker-compose logs -f app
+```
+
+5. **Stop the containers**
+
+```bash
+docker-compose down
+```
+
+#### Docker Commands Reference
+
+**Build the Docker image:**
+
+```bash
+docker build -t threat-intelligence:latest .
+```
+
+**Run container directly (without compose):**
+
+```bash
+docker run -d -p 8000:8000 --name threat-app threat-intelligence:latest
+```
+
+**View running containers:**
+
+```bash
+docker ps
+```
+
+**View container logs:**
+
+```bash
+docker logs -f threat-app
+```
+
+**Stop and remove containers:**
+
+```bash
+docker stop threat-app
+docker rm threat-app
+```
+
+**Rebuild without cache:**
+
+```bash
+docker-compose up -d --build --no-cache
+```
+
+#### Dockerfile Details
+
+The Dockerfile includes:
+
+- Python 3.11 slim base image
+- Installation of system dependencies
+- Python dependencies from requirements.txt
+- Exposure of port 8000
+- Uvicorn server startup with host 0.0.0.0
+
+#### docker-compose.yml Details
+
+The compose file configures:
+
+- Service name: `app`
+- Port mapping: 8000:8000
+- Volume mount for database persistence
+- Environment variables
+- Automatic restart policy
+
+#### Troubleshooting Docker Issues
+
+**Port 8000 is already in use:**
+
+```bash
+# Find process using port 8000
+lsof -i :8000
+
+# Kill the process (macOS/Linux)
+kill -9 <PID>
+
+# Or use a different port in docker-compose.yml
+```
+
+**Permission denied errors:**
+
+```bash
+# On Linux, add user to docker group
+sudo usermod -aG docker $USER
+newgrp docker
+```
+
+**Container exits immediately:**
+
+```bash
+# Check logs for errors
+docker-compose logs app
+
+# Verify requirements are installed
+docker-compose up --build
+```
+
+**Clear Docker resources:**
+
+```bash
+# Remove stopped containers
+docker container prune
+
+# Remove unused images
+docker image prune
+
+# Remove unused volumes
+docker volume prune
+
+# Full cleanup (careful!)
+docker system prune -a
+```
 
 ## Requirements
 
@@ -283,6 +437,8 @@ The backend also includes a health-check endpoint:
 - PDF report export
 - Role-based authentication
 - Advanced ML-based threat scoring
+- Kubernetes deployment
+- Multi-container orchestration
 
 ## Author
 
@@ -297,3 +453,4 @@ B.Tech CSE (Cybersecurity)
 - Threat feed simulation completed
 - Reports module completed
 - Threat detail drilldown completed
+- Docker support added
